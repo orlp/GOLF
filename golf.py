@@ -79,9 +79,9 @@ class GolfCPU:
             a = a - 0x2000000000000000
             r = self.data[a:a+width]
         elif a >= 0x1000000000000000:
+            a = a - 0x1000000000000000
             if len(self.stack) < a + width:
                 self.stack += [0] * (a + width - len(self.stack))
-            a = a - 0x1000000000000000
             r = self.stack[a:a+width]
         else:
             if len(self.heap) < a + width:
