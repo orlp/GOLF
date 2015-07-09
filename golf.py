@@ -35,7 +35,7 @@ class GolfCPU:
 
     # Unsigned wrapping, int to two's complement.
     def u(self, x):
-        return x & ((1 << 64) - 1) 
+        return x & ((1 << 64) - 1)
 
     def shl(self, a, b):
         b = self.twos(b)
@@ -44,7 +44,7 @@ class GolfCPU:
 
     def shr(self, a, b):
         return self.shl(a, self.u(-self.twos(b)))
-    
+
     def sal(self, a, b):
         a = self.twos(a)
         return self.shl(a, b)
@@ -52,7 +52,7 @@ class GolfCPU:
     def sar(self, a, b):
         a = self.twos(a)
         return self.shr(a, b)
-    
+
     def mul(self, a, b):
         return self.mulu(self.twos(a), self.twos(b))
 
@@ -80,8 +80,12 @@ class GolfCPU:
             r = self.data[a:a+width]
         elif a >= 0x1000000000000000:
             a = a - 0x1000000000000000
+            if len(self.stack) < a + width:
+                self.stack += [0] * (a + width - len(self.stack))
             r = self.stack[a:a+width]
         else:
+            if len(self.heap) < a + width:
+                self.heap += [0] * (a + width - len(self.heap))
             r = self.heap[a:a+width]
 
         fmts = {1: "B", 2: "S", 4: "I", 8: "Q"}
@@ -93,7 +97,7 @@ class GolfCPU:
             self.stdout.write(chr(b & 0xff))
             self.stdout.flush()
             return
-        
+
         fmts = {1: "B", 2: "S", 4: "I", 8: "Q"}
         b = struct.pack("<" + fmts[width], b & ((1 << (8*width)) - 1))
         if a >= 0x2000000000000000:
@@ -230,7 +234,7 @@ if __name__ == "__main__":
     if args.p:
         regs = args.p.split(",")
         print(", ".join(str(golf.regs[reg]) for reg in regs))
-    
+
     m = "Execution terminated after {} cycles with exit code {}.".format(golf.cycle_count, ret)
     if args.debug: m += " Register file at exit:"
     print(m)
